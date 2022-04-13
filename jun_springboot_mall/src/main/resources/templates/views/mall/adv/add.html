@@ -1,0 +1,145 @@
+<#include "/common/layout.html">
+<@body>
+<div class="content">
+	<form role="form" class="form-horizontal" method="post" action="/mall/adv/doAdd" id="addAdvForm">
+		<div class="box-body">
+			<div class="form-group">
+				<label for="deptName" class="col-sm-2 control-label">轮播标题</label>
+				<div class="col-sm-10">
+					<input type="text" id="adName" name="adName" class="form-control" placeholder="请输入标题" required>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="deptName" class="col-sm-2 control-label">链接地址</label>
+				<div class="col-sm-10">
+					<input type="text" id="linkUrl" name="linkUrl" class="form-control" placeholder="请输入链接地址" required>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">宣传图片</label>
+				<div class="col-sm-10">
+					<input type="hidden" id="adUrl" name="adUrl">
+					<div class="file-loading">
+			            <input id="uploadImg" name="file" type="file" multiple>
+			        </div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">开始时间</label>
+				<div class="col-sm-10">
+					<div class="col-sm-4 input-group">
+						<input id="startTime" name="startTime" type="text" autocomplete="off" placeholder="请输入开始时间" class="form-control item-datetime" required>
+						<div class="input-group-addon">
+							<i class="fa fa-calendar"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">关闭时间</label>
+				<div class="col-sm-10">
+					<div class="col-sm-4 input-group">
+						<input id="endTime" name="endTime" type="text" autocomplete="off" placeholder="请输入关闭时间" class="form-control item-datetime" required>
+						<div class="input-group-addon">
+							<i class="fa fa-calendar"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="Name" class="col-sm-2 control-label">显示位置</label>
+				<div class="col-sm-10">
+					<select id="position" name="position" class="form-control select2" style="width: 100%;" data-placeholder="--请选择显示位置--" required>
+						<option></option>
+						<option value="1">首页</option>
+						<option value="2">详情页</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-2 control-label">是否启动</label>
+				<div class="col-sm-10">
+					<label class="radio-box"> <input name="enabled"
+						type="radio" class="minimal" value="1" checked required>
+						启动
+					</label> <label> <input name="enabled" type="radio" class="minimal"
+						value="0" required> 关闭
+					</label>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="deptDesc" class="col-sm-2 control-label">内容描述</label>
+				<div class="col-sm-10">
+					<textarea class="form-control" id="content" name="content" rows="3"
+						placeholder="请输入内容，最多300个字符 ..." required></textarea>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+</@body>
+<script type="text/javascript">
+
+	//单图上传
+	$("#uploadImg").fileinput({
+	    uploadUrl: '/system/sysfile/upload',
+	    maxFileCount: 1,
+	    autoReplace: true,
+	    layoutTemplates:{
+            actionUpload:'',//去除上传预览缩略图中的上传图片
+            actionDownload:'' ,//去除上传预览缩略图中的下载图标
+            actionDelete:'', //去除上传预览的缩略图中的删除图标
+        },
+	}).on('fileuploaded', function (event, data, previewId, index) {
+		var rsp = data.response;
+		console.log("return fileUrl：" + rsp.fileUrl);
+		console.log("reutrn fileName：" + rsp.fileName);
+	    $('#adUrl').val(rsp.fileUrl);
+	}).on('filecleared', function(event) {
+		$('#adUrl').val('');
+	})
+	
+	function submitHandler() {
+		if ($("#addAdvForm").validate().form()) {
+			var advImg = $('#adUrl').val();
+			if(advImg == null || advImg == undefined || advImg == '') {
+				layer.msg("请上传宣传图片", {icon : 2});
+				return false;
+			}
+			var formData = $("#addAdvForm").serialize();
+			var index = layer.load(3); // 换了种风格
+			$.ajax({
+				url : $("#addAdvForm").attr('action'),
+				type : 'POST',
+				dataType : 'json',
+				data : formData,
+				beforeSend : function() {
+					$.modal.loading("正在处理中，请稍后...");
+					$.modal.disable();
+				},
+				success : function(data) {
+					layer.close(index);
+					if (data.code == 200) {
+						if (data.msg) {
+							parent.layer.msg(data.msg, {
+								icon : 1
+							});
+						} else {
+							parent.layer.msg('提交成功', {
+								icon : 1
+							});
+						}
+						parent.layer.closeAll('iframe'); // 关闭当前frame
+						window.parent.data_oTable.draw(false);
+					} else {
+						layer.msg(data.msg, {
+							icon : 2
+						});
+						$.modal.closeLoading();
+						$.modal.enable();
+					}
+				}
+			});
+		}
+	}
+</script>

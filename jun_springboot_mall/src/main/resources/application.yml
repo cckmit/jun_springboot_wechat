@@ -1,0 +1,112 @@
+server:
+   port: 8080
+   servlet:
+      context-path: /
+      session:
+         timeout: 1800
+# Shiro
+shiro:
+   user:
+      loginUrl: /login
+      unauthorizedUrl: /unauth
+      indexUrl: /index
+   session:
+      globalSessionTimeout: 1800 #单机环境，session过期时间为60分钟 60 * 60
+   cookie:
+      domain:
+      path: /
+      httpOnly: true
+      maxAge: 30
+      cipherKey: zSyK5Kp6PZAAjlT+eeNMlg== # 设置密钥，务必保持唯一性（生成方式，直接拷贝到main运行即可）KeyGenerator keygen = KeyGenerator.getInstance("AES"); SecretKey deskey = keygen.generateKey(); System.out.println(Base64.encodeToString(deskey.getEncoded()));
+global:
+   workDir: /home/mall/profile # 文件路径 示例（ Windows配置D:/web-project/profile，Linux配置 /home/mall/profile） 
+   redisrun: false # 开启redis值：true, 不开启redis值：false
+logging:
+   level:
+      com.qingshop: debug
+      org.springframework: warn
+spring:
+   freemarker:
+      cache: false
+      charset: UTF-8
+      content-type: text/html
+      suffix: .html
+      check-template-location: true
+      template-loader-path: classpath:/templates/views
+      expose-request-attributes: true
+      expose-session-attributes: true
+      expose-spring-macro-helpers: true
+      request-context-attribute: request
+      settings:
+         default_encoding: UTF-8
+         output_encoding: UTF-8
+         url_escaping_charset: UTF-8
+         template_update_delay: 0
+         classic_compatible: true
+         number_format: 0.## ##
+         datetime_format: yyyy-MM-dd HH:mm:ss
+         date_format: yyyy-MM-dd
+         time_format: HH:mm:ss
+         template_exception_handler: ignore
+   jackson:
+      time-zone: GMT+8
+      date-format: yyyy-MM-dd HH:mm:ss
+   profiles:
+      active: dev
+   servlet:
+      multipart: ##########
+         max-file-size: 10MB
+         max-request-size: 20MB
+   mail:
+      host: smtp.qq.com #发送邮件服务器
+      default-encoding: utf-8
+      username: 2081997821@qq.com #发送邮件的邮箱地址
+      password: qnlqzittfgixcdha #客户端授权码，不是邮箱密码，这个在qq邮箱设置里面自动生成的
+      from: 2081997821@qq.com # 发送邮件的地址，和上面username一致
+   devtools:
+      restart:
+         enabled: true
+         trigger-file: devtool.txt
+mybatis-plus:
+   mapper-locations: classpath:mybatis/**/*Mapper.xml
+   type-aliases-package: com.qingshop.mall.modules.**.entity
+   global-config:
+      banner: false
+      db-config:
+         id-type: INPUT #主键类型  AUTO:"数据库ID自增", INPUT:"用户输入ID",ID_WORKER:"全局唯一ID (数字类型唯一ID)", UUID:"全局唯一ID UUID";
+   configuration:
+      map-underscore-to-camel-case: false
+      cache-enabled: true
+      # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #SQL日志打印
+xss:
+   enabled: true 
+   excludes: /system/user/*
+   urlPatterns: /system/*
+oss:
+   type: 0 # 存储类型 类型 0-本地，1：七牛 2：阿里云 3：腾讯云
+   localDomain: http://81.71.163.149:8080
+   localPrefix: 
+   qiniuDomain: http://test.oss.renren.io
+   qiniuPrefix: file
+   qiniuAccessKey: NrgMfABZxWLo5B-YYSjoE8-AZ1EISdi1Z3ubLOeZ
+   qiniuSecretKey: uIwJHevMRWU0VLxFvgy0tAcOdGqasdtVlJkdy6vV
+   qiniuBucketName: renren-oss 
+   aliyunDomain: https://xxx.oss-cn-hangzhou.aliyuncs.com
+   aliyunPrefix: file
+   aliyunEndPoint: oss-cn-hangzhou.aliyuncs.com
+   aliyunAccessKeyId: LTAI4FgN4uWUatpHLxxjXmv1
+   aliyunAccessKeySecret: OJTXOBiLxxpKCAMURVlonFGdHb1n1
+   aliyunBucketName: xxx-img
+   qcloudDomain: https://xxx.cos.ap-shanghai.myqcloud.com
+   qcloudPrefix: file
+   qcloudSecretId: AKIDrxxxgT2fMDNHud5HDtOTJlACx
+   qcloudSecretKey: iBSZP6WifMn3A1cxxxwULwH
+   qcloudBucketName: sttbaxxx
+   qcloudRegion: ap-shanghai 
+mall-wx:
+   app-id: wxfa39a3fd26faca9d
+   app-secret: ba8318561bf2940caa8cf7be7928c59a
+   mch-id: 551603048164JAC
+   mch-key: kenfor1688
+   notify-url: http://www.example.com/wx/order/pay-notify
+   key-path: xxxxxx

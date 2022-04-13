@@ -1,0 +1,107 @@
+<#include "/common/layout.html">
+<link rel="stylesheet" href="${request.contextPath}/plugins/UEditor/xiumi-ue-v5.css"/>
+<@body>
+<div class="content">
+	<form role="form" class="form-horizontal" method="post" action="/system/mail/doAdd" id="addMailForm">
+		<div class="box-body">
+			<div class="form-group">
+				<label for="deptName" class="col-sm-2 control-label">收件人</label>
+				<div class="col-sm-10">
+					<input type="text" id="toMail" name="toMail" class="form-control" placeholder="请输入收件人" required>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="deptName" class="col-sm-2 control-label">主题</label>
+				<div class="col-sm-10">
+					<input type="text" id="title" name="title" class="form-control" placeholder="请输入主题" required>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="deptDesc" class="col-sm-2 control-label">正文</label>
+				<div class="col-sm-10">
+					<input id="content" name="content" type="hidden">
+					<script id="editor" name="detailContent" type="text/plain" style="height: 300px;"></script>
+				</div>
+			</div>
+		</div>
+	</form>
+</div>
+</@body>
+<script src="${request.contextPath}/plugins/UEditor/ueditor.config.js"></script>
+<script src="${request.contextPath}/plugins/UEditor/ueditor.all.js"></script>
+<script src="${request.contextPath}/plugins/UEditor/lang/zh-cn/zh-cn.js"></script>
+<script src="${request.contextPath}/plugins/UEditor/xiumi-ue-dialog-v5.js"></script>
+<script type="text/javascript">
+	//富文本编辑器
+	var ue = UE.getEditor('editor',{
+		UEDITOR_HOME_URL: "/plugins/UEditor/",
+	    serverUrl: "/plugins/UEditor/ueditor/exec",
+	    catchRemoteImageEnable: true,
+	    toolbars: [
+	      [
+	        'fullscreen', 'source', 'preview', '|',
+	        'bold', 'italic', 'underline', 'strikethrough', 'forecolor', 'backcolor', '|', 'justifyleft',
+	        'justifycenter', 'justifyright', '|',
+	        'insertorderedlist', 'insertunorderedlist', 'blockquote', 'emotion', 'insertimage', 'insertvideo',
+	        'music', 'link', 'removeformat', '|',
+	        'rowspacingtop', 'rowspacingbottom', 'lineheight', 'indent', '|', 'paragraph', 'fontfamily', 'fontsize',
+	        '|',
+	        'inserttable', 'deletetable', 'insertparagraphbeforetable', 'insertrow', 'deleterow', 'insertcol',
+	        'deletecol',
+	        'mergecells', 'mergeright', 'mergedown', 'splittocells', 'splittorows', 'splittocols', '|', 'anchor',
+	        'print', 'previewh5',
+	      ]
+	    ],
+	    autoHeightEnabled: false,
+	    autoFloatEnabled: true,
+	    autoClearinitialContent: true,
+	    initialFrameWidth: '100%',
+	    initialFrameHeight: 650,
+	    enableAutoSave: false,
+	    zIndex : 900,
+	});
+	
+	function getContent() {
+	    return UE.getEditor('editor').getContent();
+	}
+
+	function submitHandler() {
+		if ($("#addMailForm").validate().form()) {
+			$("#content").val(getContent());
+			var formData = $("#addMailForm").serialize();
+			var index = layer.load(3); // 换了种风格
+			$.ajax({
+				url : $("#addMailForm").attr('action'),
+				type : 'POST',
+				dataType : "json",
+				data : formData,
+				beforeSend : function() {
+					$.modal.loading("正在处理中，请稍后...");
+					$.modal.disable();
+				},
+				success : function(data) {
+					layer.close(index);
+					if (data.code == 200) {
+						if (data.msg) {
+							parent.layer.msg(data.msg, {
+								icon : 1
+							});
+						} else {
+							parent.layer.msg('提交成功', {
+								icon : 1
+							});
+						}
+						parent.layer.closeAll('iframe'); // 关闭当前frame
+						window.parent.data_oTable.draw(false);
+					} else {
+						layer.msg(data.msg, {
+							icon : 2
+						});
+						$.modal.closeLoading();
+						$.modal.enable();
+					}
+				}
+			});
+		}
+	}
+</script>

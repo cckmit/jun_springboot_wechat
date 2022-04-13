@@ -1,0 +1,104 @@
+<#include "/common/layout.html">
+<@body>
+	<div class="row">
+		<div class="col-md-12">
+			<form id="daAuthFrom" action="/system/role/doAuth" method="post" class="form-horizontal">
+				<input type="hidden" value="${(sysRole.roleId)!}" name="roleId" id="roleId"/>
+				<div class="box">
+					<div class="box-body">
+						<table class="table table-hover">
+							<#list treeMenuAllowAccesses as vo>
+							<tr>
+								<td width="128px">
+									<label class="radio-box">
+										<input class="minimal checkbox-list" name="mid" type="checkbox" ${(vo.allowAccess)?string('checked','')}  value="${(vo.sysMenu.menuId)!}">
+										<i class="fa ${(vo.sysMenu.icon)!}"></i> ${(vo.sysMenu.menuName)!}
+									</label>
+								</td>
+								<td>
+									<#list vo.children as ch>
+									<div style="margin-bottom:10px;" class="memu-select">
+									<label class="radio-box">
+										<input class="minimal checkbox-menu" name="mid" type="checkbox" ${(ch.allowAccess)?string('checked','')} value="${(ch.sysMenu.menuId)!}">
+										<i class="fa ${(ch.sysMenu.icon)!}"></i> ${(ch.sysMenu.menuName)!} >
+									</label>
+									<#list ch.children as it>
+										<label class="radio-box" style="font-weight: normal;">
+											<input class="minimal checkbox-button" name="mid" type="checkbox" ${(it.allowAccess)?string('checked','')}  value="${(it.sysMenu.menuId)!}">
+											${(it.sysMenu.menuName)!}
+										</label>
+									</#list>
+									</div>
+									</#list>
+								</td>
+							</tr>
+							</#list>
+						</table>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+</@body>
+<script type="text/javascript">
+	// 目录层级选中
+	$(".checkbox-list").on('ifClicked', function() {
+		$(this).parents('tr').find('.checkbox-menu').iCheck('check');
+		$(this).parents('tr').find('.checkbox-button').iCheck('check');
+	}).on('ifUnchecked', function() {
+		$(this).parents('tr').find('.checkbox-menu').iCheck('uncheck');
+		$(this).parents('tr').find('.checkbox-button').iCheck('uncheck');
+	});
+	// 菜单层级选中
+	$(".checkbox-menu").on('ifClicked', function() {
+		$(this).parents('div.memu-select').find('.checkbox-button').iCheck('check');
+	}).on('ifUnchecked', function() {
+		$(this).parents('div.memu-select').find('.checkbox-button').iCheck('uncheck');
+	});
+	function submitHandler(){
+		//获取checkbox选中的值
+		var values = {};
+		var $ch = $("input:checkbox:checked");
+		var name = {};
+		var chvs = [];
+		if($ch && $ch[0]){
+			name = $ch[0].name;
+			$ch.each(function() {
+				chvs.push($(this).val());
+			});
+			values[name] = chvs;
+		}
+		values["roleId"] = $("input[name='roleId']").val();
+		$.ajax({
+			url : $("#daAuthFrom").attr('action'),
+			type : 'POST',
+			dataType: "json",
+			data : values,
+			beforeSend : function() {
+				$.modal.loading("正在处理中，请稍后...");
+				$.modal.disable();
+			},
+			success : function(data) {
+				if (data.code == 200) {
+					if (data.msg) {
+						parent.layer.msg(data.msg, {
+							icon : 1
+						});
+					} else {
+						parent.layer.msg('提交成功', {
+							icon : 1
+						});
+					}
+					parent.layer.closeAll('iframe'); // 关闭当前frame
+					window.parent.data_oTable.draw(false);
+				} else {
+					layer.msg(data.msg, {
+						icon : 2
+					});
+					$.modal.closeLoading();
+					$.modal.enable();
+				}
+			}
+		});
+	}
+</script>
